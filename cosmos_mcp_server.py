@@ -38,4 +38,4 @@ def get_messages(limit: int = 5) -> list[dict]:
     return list(container.query_items(query=q, enable_cross_partition_query=True))
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http", host="0.0.0.0", port=8000)
+    mcp.run(transport="streamable-http", host="0.0.0.0", port=80)
