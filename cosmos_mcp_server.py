@@ -4,6 +4,7 @@ from azure.identity import DefaultAzureCredential
 from starlette.responses import JSONResponse
 import os
 
+
 mcp = FastMCP("cosmos-mcp", stateless_http=True)
 
 COSMOS_ENDPOINT = os.environ["COSMOS_ENDPOINT"]
