@@ -58,9 +58,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-app.mount("/", mcp.streamable_http_app())
 
 
 @app.get("/health")
 async def health():
     return JSONResponse({"status": "ok"})
+
+
+app.mount("/mcp", mcp.streamable_http_app())
