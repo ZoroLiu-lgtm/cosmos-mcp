@@ -2,7 +2,7 @@ from mcp.server.fastmcp import FastMCP
 from azure.cosmos import CosmosClient
 import os
 
-mcp = FastMCP("cosmos-server")
+mcp = FastMCP("cosmos-mcp", stateless_http=True)
 
 COSMOS_ENDPOINT = os.environ["COSMOS_ENDPOINT"]
 COSMOS_KEY = os.environ["COSMOS_KEY"]
