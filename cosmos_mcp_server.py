@@ -2,7 +2,12 @@ from mcp.server.fastmcp import FastMCP
 from azure.cosmos import CosmosClient
 import os
 
-mcp = FastMCP("cosmos-mcp", stateless_http=True)
+mcp = FastMCP(
+    "cosmos-mcp",
+    stateless_http=True,
+    host="0.0.0.0",
+    port=80,
+)
 
 COSMOS_ENDPOINT = os.environ["COSMOS_ENDPOINT"]
 COSMOS_KEY = os.environ["COSMOS_KEY"]
@@ -36,4 +41,4 @@ def get_messages(limit: int = 5) -> list[dict]:
     return list(container.query_items(query=q, enable_cross_partition_query=True))
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http", host="0.0.0.0", port=80)
+    mcp.run(transport="streamable-http")
