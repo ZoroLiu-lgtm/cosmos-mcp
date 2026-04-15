@@ -9,4 +9,4 @@ COPY cosmos_mcp_server.py .
 
 EXPOSE 80
 
-CMD ["uvicorn", "cosmos_mcp_server:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["python", "cosmos_mcp_server.py"]
