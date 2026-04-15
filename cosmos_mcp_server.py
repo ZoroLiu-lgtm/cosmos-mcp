@@ -1,7 +1,10 @@
+from contextlib import AsyncExitStack, asynccontextmanager
+import os
+
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from mcp.server.fastmcp import FastMCP
 from azure.cosmos import CosmosClient
-from starlette.responses import JSONResponse
-import os
 
 mcp = FastMCP("cosmos-mcp", stateless_http=True)
 
@@ -26,7 +29,7 @@ def count_messages_by_business_area(business_area: str) -> int:
         container.query_items(
             query=q,
             parameters=params,
-            enable_cross_partition_query=True
+            enable_cross_partition_query=True,
         )
     )
     return int(rows[0]) if rows else 0
@@ -47,9 +50,17 @@ def get_messages(limit: int = 5) -> list[dict]:
     return list(container.query_items(query=q, enable_cross_partition_query=True))
 
 
-@mcp.custom_route("/health", methods=["GET"])
-async def health(_request):
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with AsyncExitStack() as stack:
+        await stack.enter_async_context(mcp.session_manager.run())
+        yield
+
+
+app = FastAPI(lifespan=lifespan)
+app.mount("/", mcp.streamable_http_app())
+
+
+@app.get("/health")
+async def health():
     return JSONResponse({"status": "ok"})
-
-
-app = mcp.http_app(path="/mcp", stateless_http=True)
