@@ -1,3 +1,4 @@
 mcp[http]
 azure-cosmos
+azure-identity
 uvicorn
