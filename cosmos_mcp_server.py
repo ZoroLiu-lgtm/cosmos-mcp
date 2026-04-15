@@ -1,5 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 from azure.cosmos import CosmosClient
+from starlette.responses import JSONResponse
 import os
 
 mcp = FastMCP("cosmos-mcp", stateless_http=True)
@@ -18,12 +19,14 @@ def count_messages_by_business_area(business_area: str) -> int:
     """Count ISO 20022 messages in a business area."""
     q = "SELECT VALUE COUNT(1) FROM c WHERE c.business_area = @ba"
     params = [{"name": "@ba", "value": business_area}]
-    rows = list(container.query_items(
-        query=q,
-        parameters=params,
-        enable_cross_partition_query=True
-    ))
-    return rows[0] if rows else 0
+    rows = list(
+        container.query_items(
+            query=q,
+            parameters=params,
+            enable_cross_partition_query=True
+        )
+    )
+    return int(rows[0]) if rows else 0
 
 @mcp.tool()
 def list_business_areas() -> list[str]:
@@ -34,8 +37,12 @@ def list_business_areas() -> list[str]:
 @mcp.tool()
 def get_messages(limit: int = 5) -> list[dict]:
     """Return sample message records."""
-    q = f"SELECT TOP {int(limit)} c.id, c.message_name, c.business_area FROM c"
+    safe_limit = max(1, min(int(limit), 50))
+    q = f"SELECT TOP {safe_limit} c.id, c.message_name, c.business_area FROM c"
     return list(container.query_items(query=q, enable_cross_partition_query=True))
 
-if __name__ == "__main__":
-    mcp.run(transport="streamable-http", host="0.0.0.0", port=80)
+@mcp.custom_route("/health", methods=["GET"])
+async def health(_request):
+    return JSONResponse({"status": "ok"})
+
+app = mcp.http_app(path="/mcp", stateless_http=True)
