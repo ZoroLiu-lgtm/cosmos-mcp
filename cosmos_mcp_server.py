@@ -12,7 +12,7 @@ DATABASE_NAME = os.getenv("COSMOS_DATABASE", "iso20022-db")
 CONTAINER_NAME = os.getenv("COSMOS_CONTAINER", "messages")
 
 credential = DefaultAzureCredential()
-client = CosmosClient(COSMOS_ENDPOINT, credential=credential)
+client = CosmosClient(COSMOS_ENDPOINT, COSMOS_KEY)
 database = client.get_database_client(DATABASE_NAME)
 container = database.get_container_client(CONTAINER_NAME)
 
